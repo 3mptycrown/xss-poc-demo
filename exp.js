@@ -1,7 +1,7 @@
 // safe-xhr-debug.js — benign diagnostics only (no exfiltration)
 (function(){
   try {
-    var TARGET = "https://redacted/ePay/EditProfile.do?method=preEditProfile&STYLE_TYPE=0";
+    var TARGET = "https://epay2-preprod.efinance.com.eg/ePay/EditProfile.do?method=preEditProfile&STYLE_TYPE=0";
 
     var xhr = new XMLHttpRequest();
     xhr.open("GET", TARGET, true);
